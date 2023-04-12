@@ -475,7 +475,7 @@ class KittiEvalOdom():
         lines = []
         lines.append("Sequence: \t {} \n".format(seq) )
         lines.append("Trans. err. (%): \t {:.3f} \n".format(ave_t_err*100))
-        lines.append("Rot. err. (deg/100m): \t {:.3f} \n".format(ave_r_err/np.pi*180*100))
+        lines.append("Rot. err. (deg/m): \t {:.3f} \n".format(ave_r_err/np.pi*180))
         lines.append("ATE (m): \t {:.3f} \n".format(ate))
         lines.append("RPE (m): \t {:.3f} \n".format(rpe_trans))
         lines.append("RPE (deg): \t {:.3f} \n\n".format(rpe_rot * 180 /np.pi))
@@ -583,7 +583,7 @@ class KittiEvalOdom():
             ave_t_err, ave_r_err = self.compute_overall_err(seq_err)
             print("Sequence: " + str(i))
             print("Translational error (%): ", ave_t_err*100)
-            print("Rotational error (deg/100m): ", ave_r_err/np.pi*180*100)
+            print("Rotational error (deg/m): ", ave_r_err/np.pi*180)
             ave_t_errs.append(ave_t_err)
             ave_r_errs.append(ave_r_err)
 
@@ -611,7 +611,7 @@ class KittiEvalOdom():
         print("-------------------- For Copying ------------------------------")
         for i in range(len(ave_t_errs)):
             print("{0:.2f}".format(ave_t_errs[i]*100))
-            print("{0:.2f}".format(ave_r_errs[i]/np.pi*180*100))
+            print("{0:.2f}".format(ave_r_errs[i]/np.pi*180))
             print("{0:.2f}".format(seq_ate[i]))
             print("{0:.3f}".format(seq_rpe_trans[i]))
             print("{0:.3f}".format(seq_rpe_rot[i] * 180 / np.pi))
