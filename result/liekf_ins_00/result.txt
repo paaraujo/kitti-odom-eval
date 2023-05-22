@@ -2,6 +2,7 @@ Sequence: 	 0
 Trans. err. (%): 	 3.822 
 Rot. err. (deg/m): 	 0.011 
 ATE (m): 	 12.024 
+MATE (m): 	 72.397 
 RPE (m): 	 0.096 
 RPE (deg): 	 0.076 
 

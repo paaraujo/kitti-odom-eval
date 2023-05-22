@@ -1,0 +1,7 @@
+.python-version
+__pycache__*
+errors/
+plot_error/
+plot_path/
+*.pdf*
+result.txt

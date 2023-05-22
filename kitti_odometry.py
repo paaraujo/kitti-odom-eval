@@ -412,6 +412,36 @@ class KittiEvalOdom():
         ate = np.sqrt(np.mean(np.asarray(errors) ** 2)) 
         return ate
     
+    def compute_MATE(self, gt, pred):
+        """Compute MATE
+        Args:
+            gt (4x4 array dict): ground-truth poses
+            pred (4x4 array dict): predicted poses
+        """
+        errors = []
+        idx_0 = list(pred.keys())[0]
+        gt_0 = gt[idx_0]
+        pred_0 = pred[idx_0]
+
+        for i in pred:
+            # cur_gt = np.linalg.inv(gt_0) @ gt[i]
+            cur_gt = gt[i]
+            gt_xyz = cur_gt[:3, 3] 
+
+            # cur_pred = np.linalg.inv(pred_0) @ pred[i]
+            cur_pred = pred[i]
+            pred_xyz = cur_pred[:3, 3]
+
+            align_err = gt_xyz - pred_xyz
+
+            # print('i: ', i)
+            # print("gt: ", gt_xyz)
+            # print("pred: ", pred_xyz)
+            # input("debug")
+            errors.append(np.sqrt(np.sum(align_err ** 2)))
+        mate = np.max(np.abs(np.asarray(errors))) 
+        return mate
+
     def compute_RPE(self, gt, pred):
         """Compute RPE
         Args:
@@ -471,12 +501,13 @@ class KittiEvalOdom():
             seq (int): sequence number
             errs (list): [ave_t_err, ave_r_err, ate, rpe_trans, rpe_rot]
         """
-        ave_t_err, ave_r_err, ate, rpe_trans, rpe_rot = errs
+        ave_t_err, ave_r_err, ate, mate, rpe_trans, rpe_rot = errs
         lines = []
         lines.append("Sequence: \t {} \n".format(seq) )
         lines.append("Trans. err. (%): \t {:.3f} \n".format(ave_t_err*100))
         lines.append("Rot. err. (deg/m): \t {:.3f} \n".format(ave_r_err/np.pi*180))
         lines.append("ATE (m): \t {:.3f} \n".format(ate))
+        lines.append("MATE (m): \t {:.3f} \n".format(mate))
         lines.append("RPE (m): \t {:.3f} \n".format(rpe_trans))
         lines.append("RPE (deg): \t {:.3f} \n\n".format(rpe_rot * 180 /np.pi))
         for line in lines:
@@ -506,6 +537,7 @@ class KittiEvalOdom():
         ave_t_errs = []
         ave_r_errs = []
         seq_ate = []
+        seq_mate = []
         seq_rpe_trans = []
         seq_rpe_rot = []
 
@@ -592,6 +624,11 @@ class KittiEvalOdom():
             seq_ate.append(ate)
             print("ATE (m): ", ate)
 
+            # Compute MATE
+            mate = self.compute_MATE(poses_gt, poses_result)
+            seq_mate.append(mate)
+            print("MATE (m): ", mate)
+
             # Compute RPE
             rpe_trans, rpe_rot = self.compute_RPE(poses_gt, poses_result)
             seq_rpe_trans.append(rpe_trans)
@@ -604,7 +641,7 @@ class KittiEvalOdom():
             self.plot_error(avg_segment_errs, i)
 
             # Save result summary
-            self.write_result(f, i, [ave_t_err, ave_r_err, ate, rpe_trans, rpe_rot])
+            self.write_result(f, i, [ave_t_err, ave_r_err, ate, mate, rpe_trans, rpe_rot])
             
         f.close()    
 
@@ -613,5 +650,6 @@ class KittiEvalOdom():
             print("{0:.2f}".format(ave_t_errs[i]*100))
             print("{0:.2f}".format(ave_r_errs[i]/np.pi*180))
             print("{0:.2f}".format(seq_ate[i]))
+            print("{0:.2f}".format(seq_mate[i]))
             print("{0:.3f}".format(seq_rpe_trans[i]))
             print("{0:.3f}".format(seq_rpe_rot[i] * 180 / np.pi))
